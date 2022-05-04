@@ -1,0 +1,2 @@
+﻿LIBHPDF supporting PNG files for .NET, created from LIBHARU release 2.3.0
+LIBHPDF includes LIGPNG (http://www.libpng.org/pub/png/) and ZLIB (https://zlib.net/)

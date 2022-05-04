@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+    <TargetFramework>netstandard2.0</TargetFramework>
+    -->
+    <TargetFrameworks>netstandard2.0;net35;net40;net45;net47</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>PMS.HPDF</PackageId>
+    <Copyright>PMS - philippemp31 at outlook dot com - 2022</Copyright>
+    <Authors>philippemp31</Authors>
+    <Company>PMS</Company>
+    <Product>PMS.HPDF</Product>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
+    <AssemblyName>PMS.HPDF</AssemblyName>
+    <RootNamespace>HPDF</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\release</OutputPath>
+  </PropertyGroup>
+
+  <!--
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>..\release\PMS.HPDF.xml</DocumentationFile>
+  </PropertyGroup>
+  -->
+
+  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
+    <DocumentationFile>$(Configuration)\$(TargetFramework)\PMS.HPDF.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <Target Name="ResetPackages" BeforeTargets="DispatchToInnerBuilds">
+    <ItemGroup>
+      <NuSpecFiles Include="$(OutputPath)$(PackageId)*.nupkg" Exclude="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" />
+    </ItemGroup>
+    <Delete Files="@(NuSpecFiles)" />
+  </Target>
+
+  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)/release notes.txt"))</PackageReleaseNotes>
+      <PackageDescription>$([System.IO.File]::ReadAllText("$(SolutionDir)/description.txt"))</PackageDescription>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(TestNugetPath)" />
+  </Target>
+
+  <ItemGroup>
+    <None Include="$(SolutionDir)$(Configuration)/libhpdf.dll" Pack="true" PackagePath="build\">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(SolutionDir)/pms.hpdf.targets" Pack="true" PackagePath="build\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

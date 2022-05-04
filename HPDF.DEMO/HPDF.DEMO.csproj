@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D48A5D98-F0B8-4C5D-9768-8390BFFC9FA8}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>HPDF.DEMO</RootNamespace>
+    <AssemblyName>HPDF.DEMO</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseFromDebug|AnyCPU'">
+    <OutputPath>..\bin\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Encryption.cs" />
+    <Compile Include="FLIBHPDF.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FLIBHPDF.Designer.cs">
+      <DependentUpon>FLIBHPDF.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PDFFont.cs" />
+    <Compile Include="Image.cs" />
+    <Compile Include="JPFont.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="Outline.cs" />
+    <Compile Include="Permission.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawImage.cs" />
+    <Compile Include="SlideShow.cs" />
+    <EmbeddedResource Include="FLIBHPDF.resx">
+      <DependentUpon>FLIBHPDF.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="32_32_2color.dat" />
+    <None Include="32_32_gray.dat" />
+    <None Include="32_32_rgb.dat" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="basn0g01.png" />
+    <Content Include="basn0g02.png" />
+    <Content Include="basn0g04.png" />
+    <Content Include="basn0g08.png" />
+    <Content Include="basn0g16.png" />
+    <Content Include="basn2c08.png" />
+    <Content Include="basn2c16.png" />
+    <Content Include="basn3p01.png" />
+    <Content Include="basn3p02.png" />
+    <Content Include="basn3p04.png" />
+    <Content Include="basn3p08.png" />
+    <Content Include="basn4a08.png" />
+    <Content Include="basn4a16.png" />
+    <Content Include="basn6a08.png" />
+    <Content Include="basn6a16.png" />
+    <Content Include="maskimage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HPDF\HPDF.csproj">
+      <Project>{cbb7e796-b90e-4ae0-86b0-f16ba09ef0bd}</Project>
+      <Name>HPDF</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(ProjectDir)*.png $(TargetDir) /Y
+copy $(ProjectDir)*.dat $(TargetDir) /Y</PostBuildEvent>
+  </PropertyGroup>
+</Project>
