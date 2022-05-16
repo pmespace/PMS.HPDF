@@ -24,7 +24,7 @@ namespace HPDF.DEMO
 
 		public static bool SaveAndStart(HPDFDocument pdf, string s)
 		{
-			bool ret = pdf.SaveToFile(s, out bool exists, true);
+			bool ret = pdf.SaveToFile(ref s, out bool exists, true);
 			if (ret)
 			{
 				FileInfo fi = new FileInfo(s);

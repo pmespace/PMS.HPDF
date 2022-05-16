@@ -53,17 +53,17 @@ namespace HPDF
 		#endregion
 
 		#region properties
-		IntPtr hobj;
+		IntPtr handle;
 		#endregion
 
 		#region constructor
-		public HPDFImage(IntPtr hobj)
+		public HPDFImage(IntPtr h)
 		{
-			if (hobj == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingImage);
 			}
-			this.hobj = hobj;
+			this.handle = h;
 		}
 		#endregion
 
@@ -74,7 +74,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hobj;
+			return handle;
 		}
 		/// <summary>
 		/// Get image size
@@ -82,7 +82,7 @@ namespace HPDF
 		/// <returns>Image size or null size <see cref="HPDFPointStruct.IsNull"/>==true</returns>
 		public HPDFPointStruct GetSize()
 		{
-			return HPDF_Image_GetSize(hobj);
+			return HPDF_Image_GetSize(handle);
 		}
 		/// <summary>
 		/// Get image width
@@ -90,7 +90,7 @@ namespace HPDF
 		/// <returns>Image width or 0</returns>
 		public uint GetWidth()
 		{
-			return HPDF_Image_GetWidth(hobj);
+			return HPDF_Image_GetWidth(handle);
 		}
 		/// <summary>
 		/// Get image height
@@ -98,7 +98,7 @@ namespace HPDF
 		/// <returns>Image height or 0</returns>
 		public uint GetHeight()
 		{
-			return HPDF_Image_GetHeight(hobj);
+			return HPDF_Image_GetHeight(handle);
 		}
 		/// <summary>
 		/// Get the number of bytes used to describe each color component within the image
@@ -106,7 +106,7 @@ namespace HPDF
 		/// <returns>Number of bytes defining the color or 0</returns>
 		public uint GetBitsPerComponent()
 		{
-			return HPDF_Image_GetBitsPerComponent(hobj);
+			return HPDF_Image_GetBitsPerComponent(handle);
 		}
 		/// <summary>
 		/// Get the name of the color space of the image. Possible values are:
@@ -118,7 +118,7 @@ namespace HPDF
 		/// <returns>The name of the color space or null</returns>
 		public string GetColorSpace()
 		{
-			IntPtr s = HPDF_Image_GetColorSpace(hobj);
+			IntPtr s = HPDF_Image_GetColorSpace(handle);
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -133,7 +133,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetColorMask(uint red_min, uint red_max, uint green_min, uint green_max, uint blue_min, uint blue_max)
 		{
-			LastError = HPDF_Image_SetColorMask(hobj, red_min, red_max, green_min, green_max, blue_min, blue_max);
+			LastError = HPDF_Image_SetColorMask(handle, red_min, red_max, green_min, green_max, blue_min, blue_max);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -148,7 +148,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_IMAGE;
 				return false;
 			}
-			LastError = HPDF_Image_SetMaskImage(hobj, mask_image.GetHandle());
+			LastError = HPDF_Image_SetMaskImage(handle, mask_image.GetHandle());
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		#endregion

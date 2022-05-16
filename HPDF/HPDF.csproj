@@ -18,6 +18,8 @@
     <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
     <AssemblyName>PMS.HPDF</AssemblyName>
     <RootNamespace>HPDF</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>pms.key.file.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -31,50 +31,50 @@ namespace HPDF
 	{
 		#region imports
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern IntPtr HPDF_Font_GetFontName(IntPtr hfont);
+		private static extern IntPtr HPDF_Font_GetFontName(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern IntPtr HPDF_Font_GetEncodingName(IntPtr hfont);
+		private static extern IntPtr HPDF_Font_GetEncodingName(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern int HPDF_Font_GetUnicodeWidth(IntPtr hfont, ushort code);
+		private static extern int HPDF_Font_GetUnicodeWidth(IntPtr handle, ushort code);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern HPDFRectStruct HPDF_Font_GetBBox(IntPtr hfont);
+		private static extern HPDFRectStruct HPDF_Font_GetBBox(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern int HPDF_Font_GetAscent(IntPtr hfont);
+		private static extern int HPDF_Font_GetAscent(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern int HPDF_Font_GetDescent(IntPtr hfont);
+		private static extern int HPDF_Font_GetDescent(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Font_GetXHeight(IntPtr hfont);
+		private static extern uint HPDF_Font_GetXHeight(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Font_GetCapHeight(IntPtr hfont);
+		private static extern uint HPDF_Font_GetCapHeight(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern HPDFTextWidthStruct HPDF_Font_TextWidth(IntPtr hfont, string text, uint len);
+		private static extern HPDFTextWidthStruct HPDF_Font_TextWidth(IntPtr handle, string text, uint len);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Font_MeasureText(IntPtr hfont, string text, uint len, float width, float font_size, float char_space, float word_space, int wordwrap, ref float real_width);
+		private static extern uint HPDF_Font_MeasureText(IntPtr handle, string text, uint len, float width, float font_size, float char_space, float word_space, int wordwrap, ref float real_width);
 		#endregion
 
 		#region properties
-		IntPtr hfont;
+		IntPtr handle;
 		public string Name { get => GetFontName(); }
 		public string Encoding { get => GetEncodingName(); }
 		#endregion
 
 		#region  constructor
-		public HPDFFont(IntPtr hfont)
+		public HPDFFont(IntPtr h)
 		{
-			if (hfont == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingFont);
 			}
-			this.hfont = hfont;
+			this.handle = h;
 		}
 		#endregion
 
@@ -85,7 +85,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hfont;
+			return handle;
 		}
 		/// <summary>
 		/// Get the name of the font.
@@ -93,7 +93,7 @@ namespace HPDF
 		/// <returns>The name of the font or null</returns>
 		public string GetFontName()
 		{
-			IntPtr s = HPDF_Font_GetFontName(hfont);
+			IntPtr s = HPDF_Font_GetFontName(handle);
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -102,7 +102,7 @@ namespace HPDF
 		/// <returns>The encoding name of the font or null</returns>
 		public string GetEncodingName()
 		{
-			IntPtr s = HPDF_Font_GetEncodingName(hfont);
+			IntPtr s = HPDF_Font_GetEncodingName(handle);
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -112,7 +112,7 @@ namespace HPDF
 		/// <returns>The width of the character or 0</returns>
 		public int GetUnicodeCharacterWidth(ushort code)
 		{
-			return HPDF_Font_GetUnicodeWidth(hfont, code);
+			return HPDF_Font_GetUnicodeWidth(handle, code);
 		}
 		/// <summary>
 		/// Get the actual width of a charactor according to the page's current font size.
@@ -142,7 +142,7 @@ namespace HPDF
 		/// <returns>Font bounding box or a null box struct {0,0,0,0} (<see cref="HPDFRectStruct.IsNull"/>==true)</returns>
 		public HPDFRectStruct GetBBox()
 		{
-			return HPDF_Font_GetBBox(hfont);
+			return HPDF_Font_GetBBox(handle);
 		}
 		/// <summary>
 		/// Get the vertical ascent of the font.
@@ -153,7 +153,7 @@ namespace HPDF
 		/// <returns>Vertical ascent of the font or 0</returns>
 		public int GetAscent()
 		{
-			return HPDF_Font_GetAscent(hfont);
+			return HPDF_Font_GetAscent(handle);
 		}
 		/// <summary>
 		/// Descent is the distance between the baseline and the lowest descending glyph (applies to f, g, j, p, q, y).
@@ -163,7 +163,7 @@ namespace HPDF
 		/// <returns>Vertical ascent of the font or 0</returns>
 		public int GetDescent()
 		{
-			return HPDF_Font_GetDescent(hfont);
+			return HPDF_Font_GetDescent(handle);
 		}
 		/// <summary>
 		/// Get the distance from the baseline to the mean line of lowercase letters (mean line is the top of a, c, e, g, i, j, m, n, o, p, q, r ,s u, v, w, x, y, z).
@@ -172,7 +172,7 @@ namespace HPDF
 		/// <returns>The XHeight of the font or 0</returns>
 		public uint GetXHeight()
 		{
-			return HPDF_Font_GetXHeight(hfont);
+			return HPDF_Font_GetXHeight(handle);
 		}
 		/// <summary>
 		/// Get the distance from the baseline to the top of uppercase letters.
@@ -181,7 +181,7 @@ namespace HPDF
 		/// <returns>Capital height of the font or 0</returns>
 		public uint GetCapHeight()
 		{
-			return HPDF_Font_GetCapHeight(hfont);
+			return HPDF_Font_GetCapHeight(handle);
 		}
 		/// <summary>
 		/// Get the width of the text, number of charactors and number of the words
@@ -191,7 +191,7 @@ namespace HPDF
 		///// Note: do not use the <see cref="HPDFTextWidthStruct.numwords"/> as it may be unreliable, prefer using <see cref="HPDFTextWidthStruct.numspace"/>
 		public HPDFTextWidthStruct GetTextWidth(string text)
 		{
-			return HPDF_Font_TextWidth(hfont, text, (uint)text.Length);
+			return HPDF_Font_TextWidth(handle, text, (uint)text.Length);
 		}
 		/// <summary>
 		/// Calculate the byte length which can be included within the specified width.
@@ -206,7 +206,7 @@ namespace HPDF
 		/// <returns>The number of characters which can be included within the specified width in current fontsize, character spacing and word spacing or 0 if an error has occurred</returns>
 		public uint GetNumberOfDisplayableCharacters(string text, float width, float font_size, float char_space, float word_space, int wordwrap, ref float real_width)
 		{
-			return HPDF_Font_MeasureText(hfont, text, (uint)text.Length, width, font_size, char_space, word_space, wordwrap, ref real_width);
+			return HPDF_Font_MeasureText(handle, text, (uint)text.Length, width, font_size, char_space, word_space, wordwrap, ref real_width);
 		}
 		#endregion
 	}

@@ -31,42 +31,42 @@ namespace HPDF
 	{
 		#region imports
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetXYZ(IntPtr hdest, float left, float top, float zoom);
+		private static extern uint HPDF_Destination_SetXYZ(IntPtr handle, float left, float top, float zoom);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFit(IntPtr hdest);
+		private static extern uint HPDF_Destination_SetFit(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitH(IntPtr hdest, float top);
+		private static extern uint HPDF_Destination_SetFitH(IntPtr handle, float top);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitV(IntPtr hdest, float left);
+		private static extern uint HPDF_Destination_SetFitV(IntPtr handle, float left);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitR(IntPtr hdest, float left, float bottom, float right, float top);
+		private static extern uint HPDF_Destination_SetFitR(IntPtr handle, float left, float bottom, float right, float top);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitB(IntPtr hdest);
+		private static extern uint HPDF_Destination_SetFitB(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitBH(IntPtr hdest, float top);
+		private static extern uint HPDF_Destination_SetFitBH(IntPtr handle, float top);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_Destination_SetFitBV(IntPtr hdest, float left);
+		private static extern uint HPDF_Destination_SetFitBV(IntPtr handle, float left);
 		#endregion
 
 		#region properties
-		IntPtr hdest;
+		IntPtr handle;
 		#endregion
 
 		#region constructor
-		public HPDFDestination(IntPtr hdest)
+		public HPDFDestination(IntPtr h)
 		{
-			if (hdest == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingDestination);
 			}
-			this.hdest = hdest;
+			this.handle = h;
 		}
 		#endregion
 
@@ -80,7 +80,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetXYZ(float left, float top, float zoom)
 		{
-			LastError = HPDF_Destination_SetXYZ(hdest, left, top, zoom);
+			LastError = HPDF_Destination_SetXYZ(handle, left, top, zoom);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -89,7 +89,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFit()
 		{
-			LastError = HPDF_Destination_SetFit(hdest);
+			LastError = HPDF_Destination_SetFit(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -99,7 +99,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitH(float top)
 		{
-			LastError = HPDF_Destination_SetFitH(hdest, top);
+			LastError = HPDF_Destination_SetFitH(handle, top);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -109,7 +109,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitV(float left)
 		{
-			LastError = HPDF_Destination_SetFitV(hdest, left);
+			LastError = HPDF_Destination_SetFitV(handle, left);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -119,7 +119,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitR(HPDFRectStruct rect)
 		{
-			LastError = HPDF_Destination_SetFitR(hdest, rect.Left, rect.Bottom, rect.Right, rect.Top);
+			LastError = HPDF_Destination_SetFitR(handle, rect.Left, rect.Bottom, rect.Right, rect.Top);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -128,7 +128,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitB()
 		{
-			LastError = HPDF_Destination_SetFitB(hdest);
+			LastError = HPDF_Destination_SetFitB(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -138,7 +138,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitBH(float top)
 		{
-			LastError = HPDF_Destination_SetFitBH(hdest, top);
+			LastError = HPDF_Destination_SetFitBH(handle, top);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -148,7 +148,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetFitBV(float left)
 		{
-			LastError = HPDF_Destination_SetFitBV(hdest, left);
+			LastError = HPDF_Destination_SetFitBV(handle, left);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -157,7 +157,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hdest;
+			return handle;
 		}
 		#endregion
 	}

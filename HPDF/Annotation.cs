@@ -31,30 +31,30 @@ namespace HPDF
 	{
 		#region imports
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_LinkAnnot_SetHighlightMode(IntPtr hannot, HPDFAnnotationHighlightModes mode);
+		private static extern uint HPDF_LinkAnnot_SetHighlightMode(IntPtr handle, HPDFAnnotationHighlightModes mode);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_LinkAnnot_SetBorderStyle(IntPtr hannot, float width, ushort dash_on, ushort dash_off);
+		private static extern uint HPDF_LinkAnnot_SetBorderStyle(IntPtr handle, float width, ushort dash_on, ushort dash_off);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_TextAnnot_SetIcon(IntPtr hannot, HPDFAnnotationIcons icon);
+		private static extern uint HPDF_TextAnnot_SetIcon(IntPtr handle, HPDFAnnotationIcons icon);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern uint HPDF_TextAnnot_SetOpened(IntPtr hannot, int opened);
+		private static extern uint HPDF_TextAnnot_SetOpened(IntPtr handle, int opened);
 		#endregion
 
 		#region properties
-		IntPtr hannot;
+		IntPtr handle;
 		#endregion
 
 		#region constructor
-		public HPDFAnnotation(IntPtr hannot)
+		public HPDFAnnotation(IntPtr h)
 		{
-			if (hannot == IntPtr.Zero)
+			if (h== IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingAnnotation);
 			}
-			this.hannot = hannot;
+			this.handle = h;
 		}
 		#endregion
 
@@ -65,7 +65,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hannot;
+			return handle;
 		}
 		/// <summary>
 		/// Define the annotation apparearance when clicked on. This function can only be used with annotation links.
@@ -74,7 +74,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetHighlightMode(HPDFAnnotationHighlightModes mode)
 		{
-			LastError = HPDF_LinkAnnot_SetHighlightMode(hannot, mode);
+			LastError = HPDF_LinkAnnot_SetHighlightMode(handle, mode);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -86,7 +86,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetBorderStyle(float width, ushort dash_on, ushort dash_off)
 		{
-			LastError = HPDF_LinkAnnot_SetBorderStyle(hannot, width, dash_on, dash_off);
+			LastError = HPDF_LinkAnnot_SetBorderStyle(handle, width, dash_on, dash_off);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -96,7 +96,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetIcon(HPDFAnnotationIcons icon)
 		{
-			LastError = HPDF_TextAnnot_SetIcon(hannot, icon);
+			LastError = HPDF_TextAnnot_SetIcon(handle, icon);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -106,7 +106,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetOpened(bool opened)
 		{
-			LastError = HPDF_TextAnnot_SetOpened(hannot, opened ? HPDF_TRUE : HPDF_FALSE);
+			LastError = HPDF_TextAnnot_SetOpened(handle, opened ? HPDF_TRUE : HPDF_FALSE);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		#endregion

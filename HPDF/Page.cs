@@ -343,7 +343,7 @@ namespace HPDF
 
 		#region properties
 		// handle to an instance of a HPDF_Doc object.
-		private IntPtr hpage;
+		private IntPtr handle;
 		/// <summary>
 		/// Width of the page
 		/// </summary>
@@ -431,16 +431,16 @@ namespace HPDF
 		#region constructor
 		/// <summary>
 		/// Create a page object
-		/// Raises exeception if <paramref name="hpage"/> is <see cref="IntPtr.Zero"/>
+		/// Raises exeception if <paramref name="h"/> is <see cref="IntPtr.Zero"/>
 		/// </summary>
-		/// <param name="hpage">Pointer to the page to create an object for</param>
-		public HPDFPage(IntPtr hpage)
+		/// <param name="h">Pointer to the page to create an object for</param>
+		public HPDFPage(IntPtr h)
 		{
-			if (IntPtr.Zero == hpage)
+			if (IntPtr.Zero == h)
 			{
 				throw new Exception(Resources.FailedCreatingPage);
 			}
-			this.hpage = hpage;
+			this.handle = h;
 		}
 		#endregion
 
@@ -451,7 +451,7 @@ namespace HPDF
 		/// <returns>The width of the page or 0 if an error has occurred</returns>
 		public float GetWidth()
 		{
-			return HPDF_Page_GetWidth(hpage);
+			return HPDF_Page_GetWidth(handle);
 		}
 		/// <summary>
 		/// changes the width of a page
@@ -460,7 +460,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetWidth(float value)
 		{
-			LastError = HPDF_Page_SetWidth(hpage, value);
+			LastError = HPDF_Page_SetWidth(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -469,7 +469,7 @@ namespace HPDF
 		/// <returns>The height of the page or 0 if an error has occurred</returns>
 		public float GetHeight()
 		{
-			return HPDF_Page_GetHeight(hpage);
+			return HPDF_Page_GetHeight(handle);
 		}
 		/// <summary>
 		/// changes the height of a page
@@ -478,7 +478,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetHeight(float value)
 		{
-			LastError = HPDF_Page_SetHeight(hpage, value);
+			LastError = HPDF_Page_SetHeight(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -489,7 +489,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetSize(HPDFPageSizes size, HPDFPageDirections direction = HPDFPageDirections.Portrait)
 		{
-			LastError = HPDF_Page_SetSize(hpage, size, direction);
+			LastError = HPDF_Page_SetSize(handle, size, direction);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -499,7 +499,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetRotate(ushort angle)
 		{
-			LastError = HPDF_Page_SetRotate(hpage, angle);
+			LastError = HPDF_Page_SetRotate(handle, angle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -508,7 +508,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFDestination"/> object or null if an error has occurred</returns>
 		public HPDFDestination CreateDestination()
 		{
-			IntPtr hdest = HPDF_Page_CreateDestination(hpage);
+			IntPtr hdest = HPDF_Page_CreateDestination(handle);
 			return (IntPtr.Zero == hdest ? null : new HPDFDestination(hdest));
 		}
 		/// <summary>
@@ -520,7 +520,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFAnnotation"/> object or null if an error has occurred</returns>
 		public HPDFAnnotation CreateTextAnnotation(HPDFRectStruct rect, string text, HPDFEncoder encoder = null)
 		{
-			IntPtr hannot = HPDF_Page_CreateTextAnnot(hpage, rect, text, (encoder == null ? IntPtr.Zero : encoder.GetHandle()));
+			IntPtr hannot = HPDF_Page_CreateTextAnnot(handle, rect, text, (encoder == null ? IntPtr.Zero : encoder.GetHandle()));
 			return (IntPtr.Zero == hannot ? null : new HPDFAnnotation(hannot));
 		}
 		/// <summary>
@@ -533,7 +533,7 @@ namespace HPDF
 		{
 			try
 			{
-				IntPtr hannot = HPDF_Page_CreateLinkAnnot(hpage, rect, dst.GetHandle());
+				IntPtr hannot = HPDF_Page_CreateLinkAnnot(handle, rect, dst.GetHandle());
 				return (IntPtr.Zero == hannot ? null : new HPDFAnnotation(hannot));
 			}
 			catch (Exception) { }
@@ -548,7 +548,7 @@ namespace HPDF
 		public HPDFAnnotation CreateURILinkAnnotation(HPDFRectStruct rect, string uri)
 		{
 			if (string.IsNullOrEmpty(uri)) return null;
-			IntPtr hannot = HPDF_Page_CreateURILinkAnnot(hpage, rect, uri);
+			IntPtr hannot = HPDF_Page_CreateURILinkAnnot(handle, rect, uri);
 			return (IntPtr.Zero == hannot ? null : new HPDFAnnotation(hannot));
 		}
 		/// <summary>
@@ -558,7 +558,7 @@ namespace HPDF
 		/// <returns>Text width</returns>
 		public float GetTextWidth(string text)
 		{
-			return HPDF_Page_TextWidth(hpage, text);
+			return HPDF_Page_TextWidth(handle, text);
 		}
 		/// <summary>
 		/// Calculate the byte length which can be included within the specified width.
@@ -577,7 +577,7 @@ namespace HPDF
 		/// <returns>The number of characters which can be included within the specified width in current fontsize, character spacing and word spacing or 0 if an error has occurred</returns>
 		public uint GetNumberOfDisplayableCharacters(string text, float available_width, bool word_wrap, ref float real_width)
 		{
-			return HPDF_Page_MeasureText(hpage, text, available_width, word_wrap ? HPDF_TRUE : HPDF_FALSE, ref real_width);
+			return HPDF_Page_MeasureText(handle, text, available_width, word_wrap ? HPDF_TRUE : HPDF_FALSE, ref real_width);
 		}
 		/// <summary>
 		/// Get the current graphics mode
@@ -585,7 +585,7 @@ namespace HPDF
 		/// <returns>Current graphic mode or 0 if an error has occurred</returns>
 		public ushort GetGraphicMode()
 		{
-			return HPDF_Page_GetGMode(hpage);
+			return HPDF_Page_GetGMode(handle);
 		}
 		/// <summary>
 		/// Get the current position for path painting.
@@ -594,7 +594,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFPointStruct"/> indicating the current position for path painting on the page or <see cref="HPDFPointStruct"/> {0, 0} if any error occurs</returns>
 		public HPDFPointStruct GetCurrentPos()
 		{
-			return HPDF_Page_GetCurrentPos(hpage);
+			return HPDF_Page_GetCurrentPos(handle);
 		}
 		/// <summary>
 		/// Get the current position for text showing.
@@ -603,7 +603,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFPointStruct"/> indicating the current position for text showing on the page or <see cref="HPDFPointStruct"/> {0, 0} if any error occurs</returns>
 		public HPDFPointStruct GetCurrentTextPos()
 		{
-			return HPDF_Page_GetCurrentTextPos(hpage);
+			return HPDF_Page_GetCurrentTextPos(handle);
 		}
 		/// <summary>
 		/// Get the current <see cref="HPDFFont"/> font if any
@@ -611,7 +611,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFFont"/> object if found, null otherwise</returns>
 		public HPDFFont GetCurrentFont()
 		{
-			IntPtr h = HPDF_Page_GetCurrentFont(hpage);
+			IntPtr h = HPDF_Page_GetCurrentFont(handle);
 			return (IntPtr.Zero == h ? null : new HPDFFont(h));
 		}
 		/// <summary>
@@ -620,7 +620,7 @@ namespace HPDF
 		/// <returns>The current font name or null</returns>
 		public string GetCurrentFontName()
 		{
-			IntPtr h = HPDF_Page_GetCurrentFont(hpage);
+			IntPtr h = HPDF_Page_GetCurrentFont(handle);
 			if (IntPtr.Zero != h)
 			{
 				HPDFFont f = new HPDFFont(h);
@@ -634,7 +634,7 @@ namespace HPDF
 		/// <returns>Size of font if found, 0 otherwise</returns>
 		public float GetCurrentFontSize()
 		{
-			return HPDF_Page_GetCurrentFontSize(hpage);
+			return HPDF_Page_GetCurrentFontSize(handle);
 		}
 		/// <summary>
 		/// Get the current transformation matrix of the page
@@ -643,7 +643,7 @@ namespace HPDF
 		/// <returns></returns>
 		public HPDFTransformationMatrixStruct GetTransMatrix()
 		{
-			return HPDF_Page_GetTransMatrix(hpage);
+			return HPDF_Page_GetTransMatrix(handle);
 		}
 		/// <summary>
 		/// Get the current line width of the page
@@ -651,7 +651,7 @@ namespace HPDF
 		/// <returns>the current line width for path painting of the page or . Otherwise it returns <see cref="HPDFClass.HPDF_DEF_LINEWIDTH"/></returns>
 		public float GetLineWidth()
 		{
-			return HPDF_Page_GetLineWidth(hpage);
+			return HPDF_Page_GetLineWidth(handle);
 		}
 		/// <summary>
 		/// Set the width of the line used to stroke a path.
@@ -661,7 +661,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetLineWidth(float line_width)
 		{
-			LastError = HPDF_Page_SetLineWidth(hpage, line_width);
+			LastError = HPDF_Page_SetLineWidth(handle, line_width);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -670,7 +670,7 @@ namespace HPDF
 		/// <returns>The current line cap style of the page, <see cref="HPDFLineEndShapes.Butt"/> otherwise</returns>
 		public HPDFLineEndShapes GetLineEndShape()
 		{
-			return HPDF_Page_GetLineCap(hpage);
+			return HPDF_Page_GetLineCap(handle);
 		}
 		/// <summary>
 		/// Set the shape to be used at the ends of line
@@ -680,7 +680,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetLineEndShape(HPDFLineEndShapes line_cap)
 		{
-			LastError = HPDF_Page_SetLineCap(hpage, line_cap);
+			LastError = HPDF_Page_SetLineCap(handle, line_cap);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -689,7 +689,7 @@ namespace HPDF
 		/// <returns>The current line join style of the page, <see cref="HPDFLineJoins.Miter"/> otherwise</returns>
 		public HPDFLineJoins GetLineJoin()
 		{
-			return HPDF_Page_GetLineJoin(hpage);
+			return HPDF_Page_GetLineJoin(handle);
 		}
 		/// <summary>
 		/// Set the line join style in the page
@@ -699,7 +699,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetLineJoin(HPDFLineJoins line_join)
 		{
-			LastError = HPDF_Page_SetLineJoin(hpage, line_join);
+			LastError = HPDF_Page_SetLineJoin(handle, line_join);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -708,7 +708,7 @@ namespace HPDF
 		/// <returns>The current value of the page's miter limit, <see cref="HPDFClass.HPDF_DEF_MITERLIMIT"/> otherwise</returns>
 		public float GetMiterLimit()
 		{
-			return HPDF_Page_GetMiterLimit(hpage);
+			return HPDF_Page_GetMiterLimit(handle);
 		}
 		/// <summary>
 		/// Set the miter limit
@@ -718,7 +718,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetMiterLimit(float miter_limit)
 		{
-			LastError = HPDF_Page_SetMiterLimit(hpage, miter_limit);
+			LastError = HPDF_Page_SetMiterLimit(handle, miter_limit);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -727,7 +727,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFDashModeStruct"/> object</returns>
 		public HPDFDashModeStruct GetDash()
 		{
-			HPDFDashModeStructInternalStruct mode1 = HPDF_Page_GetDash(hpage);
+			HPDFDashModeStructInternalStruct mode1 = HPDF_Page_GetDash(handle);
 			HPDFDashModeStruct mode2;
 
 			mode2.phase = mode1.phase;
@@ -767,9 +767,9 @@ namespace HPDF
 		public bool SetDash(ushort[] dash_ptn, uint phase)
 		{
 			if (dash_ptn == null)
-				LastError = HPDF_Page_SetDash(hpage, dash_ptn, 0, 0);
+				LastError = HPDF_Page_SetDash(handle, dash_ptn, 0, 0);
 			else
-				LastError = HPDF_Page_SetDash(hpage, dash_ptn, (uint)dash_ptn.Length, phase);
+				LastError = HPDF_Page_SetDash(handle, dash_ptn, (uint)dash_ptn.Length, phase);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -778,7 +778,7 @@ namespace HPDF
 		/// <returns>The current value of the page's flatness, <see cref="HPDFClass.HPDF_DEF_FLATNESS"/> otherwise</returns>
 		public float GetFlat()
 		{
-			return HPDF_Page_GetFlat(hpage);
+			return HPDF_Page_GetFlat(handle);
 		}
 		/// <summary>
 		/// Set page's flatness
@@ -788,7 +788,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetFlat(float flatness)
 		{
-			LastError = HPDF_Page_SetFlat(hpage, flatness);
+			LastError = HPDF_Page_SetFlat(handle, flatness);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -797,7 +797,7 @@ namespace HPDF
 		/// <returns>The current value of the page's character spacing, 0 otherwise</returns>
 		public float GetCharSpace()
 		{
-			return HPDF_Page_GetCharSpace(hpage);
+			return HPDF_Page_GetCharSpace(handle);
 		}
 		/// <summary>
 		/// Set the character spacing for text showing. The initial value of character spacing is 0, values are betwwen <see cref="HPDFClass.HPDF_MIN_CHARSPACE"/> and <see cref="HPDFClass.HPDF_MAX_CHARSPACE"/> included.
@@ -807,7 +807,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetCharSpace(float value)
 		{
-			LastError = HPDF_Page_SetCharSpace(hpage, value);
+			LastError = HPDF_Page_SetCharSpace(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -816,7 +816,7 @@ namespace HPDF
 		/// <returns>The current value of the page's word spacing, 0 otherwise</returns>
 		public float GetWordSpace()
 		{
-			return HPDF_Page_GetWordSpace(hpage);
+			return HPDF_Page_GetWordSpace(handle);
 		}
 		/// <summary>
 		/// Set the  word spacing for text showing. The initial value of word spacing is 0, values are betwwen <see cref="HPDFClass.HPDF_MIN_WORDSPACE"/> and <see cref="HPDFClass.HPDF_MAX_WORDSPACE"/> included.
@@ -826,7 +826,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetWordSpace(float value)
 		{
-			LastError = HPDF_Page_SetWordSpace(hpage, value);
+			LastError = HPDF_Page_SetWordSpace(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -835,7 +835,7 @@ namespace HPDF
 		/// <returns>The current value of the page's horizontal scalling, <see cref="HPDFClass.HPDF_DEF_HSCALING"/> otherwise</returns>
 		public float GetHorizontalScalling()
 		{
-			return HPDF_Page_GetHorizontalScalling(hpage);
+			return HPDF_Page_GetHorizontalScalling(handle);
 		}
 		/// <summary>
 		/// The current value of the page's line spacing
@@ -843,7 +843,7 @@ namespace HPDF
 		/// <returns>The current value of the page's line spacing, 0 otherwise</returns>
 		public float GetTextLeading()
 		{
-			return HPDF_Page_GetTextLeading(hpage);
+			return HPDF_Page_GetTextLeading(handle);
 		}
 		/// <summary>
 		/// The current value of the page's text rendering mode
@@ -851,7 +851,7 @@ namespace HPDF
 		/// <returns>The current value of the text rendering mode, 0 otherwise</returns>
 		public HPDFTextRenderingModes GetTextRenderingMode()
 		{
-			return HPDF_Page_GetTextRenderingMode(hpage);
+			return HPDF_Page_GetTextRenderingMode(handle);
 		}
 		/// <summary>
 		/// The current value of the page's text rising
@@ -859,7 +859,7 @@ namespace HPDF
 		/// <returns>The current value of the page's text rising, 0 otherwise</returns>
 		public float GetTextRaise()
 		{
-			return HPDF_Page_GetTextRaise(hpage);
+			return HPDF_Page_GetTextRaise(handle);
 		}
 		/// <summary>
 		/// The current value of the page's filling color, valid only when the page's filling color space is <see cref="HPDFColorSpaces.DeviceRGB"/>
@@ -867,7 +867,7 @@ namespace HPDF
 		/// <returns>The current <see cref="HPDFRGBColorStruct"/> of the page's filling color, {0, 0, 0} otherwise</returns>
 		public HPDFRGBColorStruct GetRGBFill()
 		{
-			return HPDF_Page_GetRGBFill(hpage);
+			return HPDF_Page_GetRGBFill(handle);
 		}
 		/// <summary>
 		/// The current value of the page's color stroke (line around), valid only when the page's filling color space is <see cref="HPDFColorSpaces.DeviceRGB"/>
@@ -875,7 +875,7 @@ namespace HPDF
 		/// <returns>The current <see cref="HPDFRGBColorStruct"/> of the page's color stroke, {0, 0, 0} otherwise</returns>
 		public HPDFRGBColorStruct GetRGBStroke()
 		{
-			return HPDF_Page_GetRGBStroke(hpage);
+			return HPDF_Page_GetRGBStroke(handle);
 		}
 		/// <summary>
 		/// The current value of the page's filling color, valid only when the page's filling color space is <see cref="HPDFColorSpaces.DeviceCMYK"/>
@@ -883,7 +883,7 @@ namespace HPDF
 		/// <returns>The current <see cref="HPDFCMYKColorStruct"/> of the page's filling color, {0, 0, 0} otherwise</returns>
 		public HPDFCMYKColorStruct GetCMYKFill()
 		{
-			return HPDF_Page_GetCMYKFill(hpage);
+			return HPDF_Page_GetCMYKFill(handle);
 		}
 		/// <summary>
 		/// Set the filling color.
@@ -893,7 +893,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetCMYKFill(HPDFCMYKColorStruct color)
 		{
-			LastError = HPDF_Page_SetCMYKFill(hpage, color.C, color.M, color.Y, color.K);
+			LastError = HPDF_Page_SetCMYKFill(handle, color.C, color.M, color.Y, color.K);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -902,7 +902,7 @@ namespace HPDF
 		/// <returns>The current <see cref="HPDFRGBColorStruct"/> of the page's color stroke, {0, 0, 0} otherwise</returns>
 		public HPDFCMYKColorStruct GetCMYKStroke()
 		{
-			return HPDF_Page_GetCMYKStroke(hpage);
+			return HPDF_Page_GetCMYKStroke(handle);
 		}
 		/// <summary>
 		/// The current value of the page's filling color, valid only when the page's filling color space is <see cref="HPDFColorSpaces.DeviceGray"/>
@@ -910,7 +910,7 @@ namespace HPDF
 		/// <returns>The current value of the page's filling color, 0 otherwise</returns>
 		public float GetGrayFill()
 		{
-			return HPDF_Page_GetGrayFill(hpage);
+			return HPDF_Page_GetGrayFill(handle);
 		}
 		/// <summary>
 		/// Set the filling color.
@@ -920,7 +920,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetGrayFill(float gray)
 		{
-			LastError = HPDF_Page_SetGrayFill(hpage, gray);
+			LastError = HPDF_Page_SetGrayFill(handle, gray);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -929,7 +929,7 @@ namespace HPDF
 		/// <returns>The current value of the page's color stroke, 0 otherwise</returns>
 		public float GetGrayStroke()
 		{
-			return HPDF_Page_GetGrayStroke(hpage);
+			return HPDF_Page_GetGrayStroke(handle);
 		}
 		/// <summary>
 		/// Set the stroke color.
@@ -939,7 +939,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetGrayStroke(float gray)
 		{
-			LastError = HPDF_Page_SetGrayStroke(hpage, gray);
+			LastError = HPDF_Page_SetGrayStroke(handle, gray);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -950,7 +950,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetRGBFill(HPDFRGBColorStruct color)
 		{
-			LastError = HPDF_Page_SetRGBFill(hpage, color.R, color.G, color.B);
+			LastError = HPDF_Page_SetRGBFill(handle, color.R, color.G, color.B);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -961,7 +961,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetRGBStroke(HPDFRGBColorStruct color)
 		{
-			LastError = HPDF_Page_SetRGBStroke(hpage, color.R, color.G, color.B);
+			LastError = HPDF_Page_SetRGBStroke(handle, color.R, color.G, color.B);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -970,7 +970,7 @@ namespace HPDF
 		/// <returns>The <see cref="HPDFColorSpaces"/> of the page,  <see cref="HPDFColorSpaces._eof"/> otherwise</returns>
 		public HPDFColorSpaces GetStrokingColorSpace()
 		{
-			return HPDF_Page_GetStrokingColorSpace(hpage);
+			return HPDF_Page_GetStrokingColorSpace(handle);
 		}
 		/// <summary>
 		/// The current value of the page's filling color space
@@ -978,7 +978,7 @@ namespace HPDF
 		/// <returns>The <see cref="HPDFColorSpaces"/> of the page,  <see cref="HPDFColorSpaces._eof"/> otherwise</returns>
 		public HPDFColorSpaces GetFillingColorSpace()
 		{
-			return HPDF_Page_GetFillingColorSpace(hpage);
+			return HPDF_Page_GetFillingColorSpace(handle);
 		}
 		/// <summary>
 		/// Get the current text transformation matrix of the page
@@ -987,7 +987,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFTransformationMatrixStruct"/> object</returns>
 		public HPDFTransformationMatrixStruct GetTextMatrix()
 		{
-			return HPDF_Page_GetTextMatrix(hpage);
+			return HPDF_Page_GetTextMatrix(handle);
 		}
 		/// <summary>
 		/// Get the number of the page's graphics state stack
@@ -995,7 +995,7 @@ namespace HPDF
 		/// <returns>The number of the page's graphics state stack, 0 otherwise</returns>
 		public uint GetGraphicStateDepth()
 		{
-			return HPDF_Page_GetGStateDepth(hpage);
+			return HPDF_Page_GetGStateDepth(handle);
 		}
 		/// <summary>
 		/// Applies the graphics state to the page
@@ -1007,7 +1007,7 @@ namespace HPDF
 		{
 			try
 			{
-				LastError = HPDF_Page_SetExtGState(hpage, gstate.GetHandle());
+				LastError = HPDF_Page_SetExtGState(handle, gstate.GetHandle());
 				return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 			}
 			catch (Exception) { }
@@ -1039,7 +1039,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool GSave()
 		{
-			LastError = HPDF_Page_GSave(hpage);
+			LastError = HPDF_Page_GSave(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1067,7 +1067,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool GRestore()
 		{
-			LastError = HPDF_Page_GRestore(hpage);
+			LastError = HPDF_Page_GRestore(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1100,7 +1100,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Concat(float a, float b, float c, float d, float x, float y)
 		{
-			LastError = HPDF_Page_Concat(hpage, a, b, c, d, x, y);
+			LastError = HPDF_Page_Concat(handle, a, b, c, d, x, y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1111,7 +1111,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveTo(HPDFPointStruct ending_point)
 		{
-			LastError = HPDF_Page_MoveTo(hpage, ending_point.x, ending_point.y);
+			LastError = HPDF_Page_MoveTo(handle, ending_point.x, ending_point.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1122,7 +1122,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool LineTo(HPDFPointStruct ending_point)
 		{
-			LastError = HPDF_Page_LineTo(hpage, ending_point.x, ending_point.y);
+			LastError = HPDF_Page_LineTo(handle, ending_point.x, ending_point.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1136,7 +1136,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool CurveTo(HPDFPointStruct ctrl_on_starting_point, HPDFPointStruct ctrl_on_ending_point, HPDFPointStruct ending_point)
 		{
-			LastError = HPDF_Page_CurveTo(hpage, ctrl_on_starting_point.x, ctrl_on_starting_point.y, ctrl_on_ending_point.x, ctrl_on_ending_point.y, ending_point.x, ending_point.y);
+			LastError = HPDF_Page_CurveTo(handle, ctrl_on_starting_point.x, ctrl_on_starting_point.y, ctrl_on_ending_point.x, ctrl_on_ending_point.y, ending_point.x, ending_point.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1149,7 +1149,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool CurveOnEndingPoint(HPDFPointStruct ctrl_on_ending_point, HPDFPointStruct ending_point)
 		{
-			LastError = HPDF_Page_CurveTo2(hpage, ctrl_on_ending_point.x, ctrl_on_ending_point.y, ending_point.x, ending_point.y);
+			LastError = HPDF_Page_CurveTo2(handle, ctrl_on_ending_point.x, ctrl_on_ending_point.y, ending_point.x, ending_point.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1162,7 +1162,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool CurveOnStartingPoint(HPDFPointStruct ctrl_on_starting_point, HPDFPointStruct ending_point)
 		{
-			LastError = HPDF_Page_CurveTo2(hpage, ctrl_on_starting_point.x, ctrl_on_starting_point.y, ending_point.x, ending_point.y);
+			LastError = HPDF_Page_CurveTo2(handle, ctrl_on_starting_point.x, ctrl_on_starting_point.y, ending_point.x, ending_point.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1172,7 +1172,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ClosePath()
 		{
-			LastError = HPDF_Page_ClosePath(hpage);
+			LastError = HPDF_Page_ClosePath(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1184,7 +1184,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Rectangle(HPDFPointStruct lower_left_point_of_rectangle, HPDFSizeStruct size)
 		{
-			LastError = HPDF_Page_Rectangle(hpage, lower_left_point_of_rectangle.x, lower_left_point_of_rectangle.y, size.Width, size.Height);
+			LastError = HPDF_Page_Rectangle(handle, lower_left_point_of_rectangle.x, lower_left_point_of_rectangle.y, size.Width, size.Height);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1194,7 +1194,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Stroke()
 		{
-			LastError = HPDF_Page_Stroke(hpage);
+			LastError = HPDF_Page_Stroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1204,7 +1204,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ClosePathStroke()
 		{
-			LastError = HPDF_Page_ClosePathStroke(hpage);
+			LastError = HPDF_Page_ClosePathStroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1214,7 +1214,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Fill()
 		{
-			LastError = HPDF_Page_Fill(hpage);
+			LastError = HPDF_Page_Fill(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1224,7 +1224,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Eofill()
 		{
-			LastError = HPDF_Page_Eofill(hpage);
+			LastError = HPDF_Page_Eofill(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1234,7 +1234,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool FillStroke()
 		{
-			LastError = HPDF_Page_FillStroke(hpage);
+			LastError = HPDF_Page_FillStroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1244,7 +1244,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool EofillStroke()
 		{
-			LastError = HPDF_Page_EofillStroke(hpage);
+			LastError = HPDF_Page_EofillStroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1254,7 +1254,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ClosePathFillStroke()
 		{
-			LastError = HPDF_Page_ClosePathFillStroke(hpage);
+			LastError = HPDF_Page_ClosePathFillStroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1264,7 +1264,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ClosePathEofillStroke()
 		{
-			LastError = HPDF_Page_ClosePathEofillStroke(hpage);
+			LastError = HPDF_Page_ClosePathEofillStroke(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1274,7 +1274,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool EndPath()
 		{
-			LastError = HPDF_Page_EndPath(hpage);
+			LastError = HPDF_Page_EndPath(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1284,7 +1284,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Clip()
 		{
-			LastError = HPDF_Page_Clip(hpage);
+			LastError = HPDF_Page_Clip(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1294,7 +1294,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Eoclip()
 		{
-			LastError = HPDF_Page_Eoclip(hpage);
+			LastError = HPDF_Page_Eoclip(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1304,7 +1304,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool BeginText()
 		{
-			LastError = HPDF_Page_BeginText(hpage);
+			LastError = HPDF_Page_BeginText(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1314,7 +1314,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool EndText()
 		{
-			LastError = HPDF_Page_EndText(hpage);
+			LastError = HPDF_Page_EndText(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1325,7 +1325,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetHorizontalScalling(float value)
 		{
-			LastError = HPDF_Page_SetHorizontalScalling(hpage, value);
+			LastError = HPDF_Page_SetHorizontalScalling(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1336,7 +1336,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetTextLeading(float value)
 		{
-			LastError = HPDF_Page_SetTextLeading(hpage, value);
+			LastError = HPDF_Page_SetTextLeading(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1366,7 +1366,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_FONT;
 				return false;
 			}
-			LastError = HPDF_Page_SetFontAndSize(hpage, font.GetHandle(), size);
+			LastError = HPDF_Page_SetFontAndSize(handle, font.GetHandle(), size);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1377,7 +1377,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetTextRenderingMode(HPDFTextRenderingModes mode)
 		{
-			LastError = HPDF_Page_SetTextRenderingMode(hpage, mode);
+			LastError = HPDF_Page_SetTextRenderingMode(handle, mode);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1388,7 +1388,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetTextRaise(float value)
 		{
-			LastError = HPDF_Page_SetTextRaise(hpage, value);
+			LastError = HPDF_Page_SetTextRaise(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1400,7 +1400,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveTextPos(HPDFPointStruct new_position)
 		{
-			LastError = HPDF_Page_MoveTextPos(hpage, new_position.x, new_position.y);
+			LastError = HPDF_Page_MoveTextPos(handle, new_position.x, new_position.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1413,7 +1413,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveTextPos(float x, float y)
 		{
-			LastError = HPDF_Page_MoveTextPos(hpage, x, y);
+			LastError = HPDF_Page_MoveTextPos(handle, x, y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1426,7 +1426,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveTextPosAndChangeTextLeading(HPDFPointStruct new_position)
 		{
-			LastError = HPDF_Page_MoveTextPos2(hpage, new_position.x, new_position.y);
+			LastError = HPDF_Page_MoveTextPos2(handle, new_position.x, new_position.y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1440,7 +1440,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveTextPosAndChangeTextLeading(float x, float y)
 		{
-			LastError = HPDF_Page_MoveTextPos2(hpage, x, y);
+			LastError = HPDF_Page_MoveTextPos2(handle, x, y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1457,7 +1457,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetTextMatrix(float a, float b, float c, float d, float x, float y)
 		{
-			LastError = HPDF_Page_SetTextMatrix(hpage, a, b, c, d, x, y);
+			LastError = HPDF_Page_SetTextMatrix(handle, a, b, c, d, x, y);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1469,7 +1469,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool MoveToNextLine()
 		{
-			LastError = HPDF_Page_MoveToNextLine(hpage);
+			LastError = HPDF_Page_MoveToNextLine(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1480,7 +1480,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ShowText(string text)
 		{
-			LastError = HPDF_Page_ShowText(hpage, text);
+			LastError = HPDF_Page_ShowText(handle, text);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1493,7 +1493,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ShowTextNextLine(string text)
 		{
-			LastError = HPDF_Page_ShowTextNextLine(hpage, text);
+			LastError = HPDF_Page_ShowTextNextLine(handle, text);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1508,7 +1508,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ShowTextNextLine(float word_space, float char_space, string text)
 		{
-			LastError = HPDF_Page_ShowTextNextLineEx(hpage, word_space, char_space, text);
+			LastError = HPDF_Page_ShowTextNextLineEx(handle, word_space, char_space, text);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1520,7 +1520,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool ShowTextAt(string text, HPDFPointStruct point)
 		{
-			LastError = HPDF_Page_TextOut(hpage, point.x, point.y, text);
+			LastError = HPDF_Page_TextOut(handle, point.x, point.y, text);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1537,7 +1537,7 @@ namespace HPDF
 			len = 0;
 			if (AdjustTextLeading())
 			{
-				LastError = HPDF_Page_TextRect(hpage, rect.Left, rect.Top, rect.Right, rect.Bottom, text, align, ref len);
+				LastError = HPDF_Page_TextRect(handle, rect.Left, rect.Top, rect.Right, rect.Bottom, text, align, ref len);
 			}
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
@@ -1549,7 +1549,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetCMYKStroke(HPDFCMYKColorStruct color)
 		{
-			LastError = HPDF_Page_SetCMYKStroke(hpage, color.C, color.M, color.Y, color.K);
+			LastError = HPDF_Page_SetCMYKStroke(handle, color.C, color.M, color.Y, color.K);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 
@@ -1560,7 +1560,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_IMAGE;
 				return false;
 			}
-			LastError = HPDF_Page_ExecuteXObject(hpage, xobj.GetHandle());
+			LastError = HPDF_Page_ExecuteXObject(handle, xobj.GetHandle());
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1577,7 +1577,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_IMAGE;
 				return false;
 			}
-			LastError = HPDF_Page_DrawImage(hpage, image.GetHandle(), lower_left_point.x, lower_left_point.y, size.Width, size.Height);
+			LastError = HPDF_Page_DrawImage(handle, image.GetHandle(), lower_left_point.x, lower_left_point.y, size.Width, size.Height);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1589,7 +1589,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Circle(HPDFPointStruct point, float ray)
 		{
-			LastError = HPDF_Page_Circle(hpage, point.x, point.y, ray);
+			LastError = HPDF_Page_Circle(handle, point.x, point.y, ray);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1608,7 +1608,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_PARAMETER;
 				return false;
 			}
-			LastError = HPDF_Page_Arc(hpage, point.x, point.y, ray, ang1, ang2);
+			LastError = HPDF_Page_Arc(handle, point.x, point.y, ray, ang1, ang2);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1621,7 +1621,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool Ellipse(HPDFPointStruct point, float xray, float yray)
 		{
-			LastError = HPDF_Page_Ellipse(hpage, point.x, point.y, xray, yray);
+			LastError = HPDF_Page_Ellipse(handle, point.x, point.y, xray, yray);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1633,7 +1633,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetSlideShow(HPDFTransitionStyles type, float disp_time, float trans_time)
 		{
-			LastError = HPDF_Page_SetSlideShow(hpage, type, disp_time, trans_time);
+			LastError = HPDF_Page_SetSlideShow(handle, type, disp_time, trans_time);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -1642,7 +1642,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hpage;
+			return handle;
 		}
 		#endregion
 	}

@@ -142,13 +142,13 @@ namespace HPDF.DEMO
 
 				//page.SetFont(c, 15);
 				page.MoveTextPos(new HPDFPointStruct() { x = 0, y = 15 });
-				page.ShowText($"{page.CurrentTextPos} Mon texte à moi personnellement");
+				page.ShowText($"{page.CurrentTextPos} my very own text");
 
 				page.MoveTextPos(0, 15);
-				page.ShowText(Encoding.UTF8.GetString(Encoding.Default.GetBytes($"{page.CurrentTextPos} Mon texte à moi personnellement")));
+				page.ShowText(Encoding.UTF8.GetString(Encoding.Default.GetBytes($"{page.CurrentTextPos} my very own text")));
 
 				page.MoveTextPos(0, 15);
-				page.ShowText($"{page.CurrentTextPos} Mon texte à moi personnellement");
+				page.ShowText($"{page.CurrentTextPos} my very own text");
 
 
 				page.MoveTextPos(new HPDFPointStruct() { x = 0, y = 15 });

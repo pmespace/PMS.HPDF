@@ -39,18 +39,18 @@ namespace HPDF
 		#endregion
 
 		#region properties
-		IntPtr hgstate;
+		IntPtr handle;
 		#endregion
 
 		#region constructor
-		public HPDFExtGState(IntPtr hgstate)
+		public HPDFExtGState(IntPtr h)
 		{
-			if (hgstate == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingImage);
 			}
 
-			this.hgstate = hgstate;
+			this.handle = h;
 		}
 		#endregion
 
@@ -61,7 +61,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hgstate;
+			return handle;
 		}
 		/// <summary>
 		/// Set the Alpha stroke
@@ -70,7 +70,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetAlphaStroke(float value)
 		{
-			LastError = HPDF_ExtGState_SetAlphaStroke(hgstate, value);
+			LastError = HPDF_ExtGState_SetAlphaStroke(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -80,7 +80,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetAlphaFill(float value)
 		{
-			LastError = HPDF_ExtGState_SetAlphaFill(hgstate, value);
+			LastError = HPDF_ExtGState_SetAlphaFill(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -90,7 +90,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetBlendMode(HPDFBlendModes mode)
 		{
-			LastError = HPDF_ExtGState_SetBlendMode(hgstate, mode);
+			LastError = HPDF_ExtGState_SetBlendMode(handle, mode);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		#endregion

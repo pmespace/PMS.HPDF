@@ -1,5 +1,5 @@
 ﻿/*
- * << Haru Free PDF Library 2.0.6 >> -- hpdf.cs
+ * << Haru Free PDF Library 2.0.6 >> -- handle.cs
  *
  * C# wrapper for libhpdf.dll
  *
@@ -202,8 +202,8 @@ namespace HPDF
 		private void Initialise()
 		{
 			HPDFErrorHandler error_handler = new HPDFErrorHandler(ErrorProc);
-			hpdf = HPDF_New(error_handler, IntPtr.Zero);
-			if (hpdf == IntPtr.Zero)
+			handle = HPDF_New(error_handler, IntPtr.Zero);
+			if (handle == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingDocument);
 			}
@@ -213,26 +213,26 @@ namespace HPDF
 		/// </summary>
 		void IDisposable.Dispose()
 		{
-			if (hpdf != IntPtr.Zero)
+			if (handle != IntPtr.Zero)
 			{
-				HPDF_Free(hpdf);
+				HPDF_Free(handle);
 			}
-			hpdf = IntPtr.Zero;
+			handle = IntPtr.Zero;
 		}
 		/// <summary>
 		/// Destroy the PDF object
 		/// </summary>
 		~HPDFDocument()
 		{
-			if (hpdf != IntPtr.Zero)
+			if (handle != IntPtr.Zero)
 			{
-				HPDF_Free(hpdf);
+				HPDF_Free(handle);
 			}
 		}
 		#endregion
 
 		#region properties
-		IntPtr hpdf;
+		IntPtr handle;
 		public HPDFCallback Callback { get => _callback; set => _callback = value; }
 		private HPDFCallback _callback = null;
 		public bool ThrowException { get; set; }
@@ -271,7 +271,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool NewDoc()
 		{
-			LastError = HPDF_NewDoc(hpdf);
+			LastError = HPDF_NewDoc(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -281,7 +281,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool FreeDoc()
 		{
-			LastError = HPDF_FreeDoc(hpdf);
+			LastError = HPDF_FreeDoc(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -290,7 +290,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool FreeDocAll()
 		{
-			LastError = HPDF_FreeDocAll(hpdf);
+			LastError = HPDF_FreeDocAll(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -299,31 +299,34 @@ namespace HPDF
 		/// <returns>True if a PDF document exists inside the object, false otherwise</returns>
 		public bool HasDoc()
 		{
-			return (HPDF_HasDoc(hpdf) != 0);
+			return (HPDF_HasDoc(handle) != 0);
 		}
 		/// <summary>
 		/// Save the document to a file.
 		/// </summary>
-		/// <param name="file_name">Name of the file to create, if the file exists it is replaced</param>
+		/// <param name="file_name">Name of the file to create, if the file exists it is replaced if <paramref name="replace"/> indicates so; on return the final name of the file (if amended by the process)</param>
 		/// <param name="exists">[OUT] true if the file already exists, fals eotherwise</param>
 		/// <param name="replace">If true and the file exists it is replaced, if false it is not</param>
 		/// <returns>True if the file has been created, false if not</returns>
-		public bool SaveToFile(string file_name, out bool exists, bool replace = false)
+		public bool SaveToFile(ref string file_name, out bool exists, bool replace = false)
 		{
 			exists = false;
 			try
 			{
 				FileInfo fi = new FileInfo(file_name);
-				if (string.IsNullOrEmpty(fi.Extension))
+				// let's just make sure the file is created with a pdf extension
+				if (string.IsNullOrEmpty(fi.Extension) || 0 != string.Compare(".pdf", fi.Extension, true))
 					file_name += ".pdf";
 				fi = new FileInfo(file_name);
 				exists = fi.Exists;
 				if (exists && !replace)
 				{
+					// the file exists and won't be replaced
 					LastError = (uint)HPDFErrors.HPDF_FILE_ALREADY_EXISTS;
 					return false;
 				}
-				LastError = HPDF_SaveToFile(hpdf, HPDFTools.StringBuilder(file_name));
+				file_name = fi.FullName;
+				LastError = HPDF_SaveToFile(handle, HPDFTools.StringBuilder(file_name));
 				return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 			}
 			catch (Exception) { }
@@ -337,7 +340,7 @@ namespace HPDF
 		/// <returns>The error value <see cref="HPDFErrors"/> value</returns>
 		public uint GetError()
 		{
-			return HPDF_GetError(hpdf);
+			return HPDF_GetError(handle);
 		}
 		/// <summary>
 		/// Get the HPDF detailed error
@@ -346,14 +349,14 @@ namespace HPDF
 		/// <returns>The object having caused the error</returns>
 		public uint GetErrorDetail()
 		{
-			return HPDF_GetErrorDetail(hpdf);
+			return HPDF_GetErrorDetail(handle);
 		}
 		/// <summary>
 		/// Reset the error
 		/// </summary>
 		public void ResetError()
 		{
-			HPDF_ResetError(hpdf);
+			HPDF_ResetError(handle);
 		}
 		/// <summary>
 		/// By default the document has one pages object as a root for all pages.
@@ -365,7 +368,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetPagesConfiguration(uint page_per_pages)
 		{
-			LastError = HPDF_SetPagesConfiguration(hpdf, page_per_pages);
+			LastError = HPDF_SetPagesConfiguration(handle, page_per_pages);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -375,7 +378,7 @@ namespace HPDF
 		/// <returns>a <see cref="HPDFPage"/> object to the page if it exists, null otherwise</returns>
 		public HPDFPage GetPageByIndex(uint index)
 		{
-			IntPtr hpage = HPDF_GetPageByIndex(hpdf, index);
+			IntPtr hpage = HPDF_GetPageByIndex(handle, index);
 			return (IntPtr.Zero == hpage ? null : new HPDFPage(hpage));
 		}
 		/// <summary>
@@ -385,7 +388,7 @@ namespace HPDF
 		/// <returns>The current setting for page layout <see cref="HPDFPageLayouts"/>. If no page layout has been set returns <see cref="HPDFPageLayouts._eof	"/></returns>
 		public HPDFPageLayouts GetPageLayout()
 		{
-			return HPDF_GetPageLayout(hpdf);
+			return HPDF_GetPageLayout(handle);
 		}
 		/// <summary>
 		/// Sets how the page should be displayed. 
@@ -395,7 +398,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetPageLayout(HPDFPageLayouts layout)
 		{
-			LastError = HPDF_SetPageLayout(hpdf, layout);
+			LastError = HPDF_SetPageLayout(handle, layout);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -404,7 +407,7 @@ namespace HPDF
 		/// <returns><see cref="HPDFPageModes"/></returns>
 		public HPDFPageModes GetPageMode()
 		{
-			return HPDF_GetPageMode(hpdf);
+			return HPDF_GetPageMode(handle);
 		}
 		/// <summary>
 		/// Set how the document should be displayed
@@ -413,7 +416,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetPageMode(HPDFPageModes mode)
 		{
-			LastError = HPDF_SetPageMode(hpdf, mode);
+			LastError = HPDF_SetPageMode(handle, mode);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -428,7 +431,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_DESTINATION;
 				return false;
 			}
-			LastError = HPDF_SetOpenAction(hpdf, open_action.GetHandle());
+			LastError = HPDF_SetOpenAction(handle, open_action.GetHandle());
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -437,7 +440,7 @@ namespace HPDF
 		/// <returns>A combination of flag values from <see cref="HPDFViewerPreferences"/></returns>
 		public uint GetViewerPreference()
 		{
-			return HPDF_GetViewerPreference(hpdf);
+			return HPDF_GetViewerPreference(handle);
 		}
 		/// <summary>
 		/// Set how the viewer should display the document
@@ -446,7 +449,7 @@ namespace HPDF
 		/// <returns>True if set, false otherwise</returns>
 		public bool SetViewerPreference(uint value)
 		{
-			LastError = HPDF_SetViewerPreference(hpdf, value);
+			LastError = HPDF_SetViewerPreference(handle, value);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -455,7 +458,7 @@ namespace HPDF
 		/// <returns>a <see cref="HPDFPage"/> object to the page if there's a current page, null otherwise</returns>
 		public HPDFPage GetCurrentPage()
 		{
-			IntPtr hpage = HPDF_GetCurrentPage(hpdf);
+			IntPtr hpage = HPDF_GetCurrentPage(handle);
 			return (IntPtr.Zero == hpage ? null : new HPDFPage(hpage));
 		}
 		/// <summary>
@@ -464,7 +467,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFPage"/> object if successful, null otherwise</returns>
 		public HPDFPage AddPage()
 		{
-			IntPtr hpage = HPDF_AddPage(hpdf);
+			IntPtr hpage = HPDF_AddPage(handle);
 			return (IntPtr.Zero == hpage ? null : new HPDFPage(hpage));
 		}
 		/// <summary>
@@ -474,7 +477,7 @@ namespace HPDF
 		/// <returns>True if a new page has been inserted before the specified page, <see langword="null"/>otherwise</returns>
 		public HPDFPage InsertPage(HPDFPage page)
 		{
-			IntPtr hpage = HPDF_InsertPage(hpdf, page.GetHandle());
+			IntPtr hpage = HPDF_InsertPage(handle, page.GetHandle());
 			return (IntPtr.Zero == hpage ? null : new HPDFPage(hpage));
 		}
 		/// <summary>
@@ -535,7 +538,7 @@ namespace HPDF
 			//       document.UseJPEncodings();
 			//       hfont = document.GetFont("MS-Mincyo", "90ms-RKSJ-H");
 			//       page.SetFontAndSize(hfont, 10.5);
-			IntPtr hfont = HPDF_GetFont(hpdf, HPDFTools.StringBuilder(font_name), HPDFTools.StringBuilder(encoder_name));
+			IntPtr hfont = HPDF_GetFont(handle, HPDFTools.StringBuilder(font_name), HPDFTools.StringBuilder(encoder_name));
 			return (IntPtr.Zero == hfont ? null : new HPDFFont(hfont));
 		}
 		/// <summary>
@@ -548,7 +551,7 @@ namespace HPDF
 		/// <returns>The name of the font if there's one, null otherwise</returns>
 		public string LoadType1FontFromFile(string afmfilename, string pfmfilename = null)
 		{
-			IntPtr s = HPDF_LoadType1FontFromFile(hpdf, HPDFTools.StringBuilder(afmfilename), HPDFTools.StringBuilder(pfmfilename));
+			IntPtr s = HPDF_LoadType1FontFromFile(handle, HPDFTools.StringBuilder(afmfilename), HPDFTools.StringBuilder(pfmfilename));
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -561,7 +564,7 @@ namespace HPDF
 		/// <returns>The name of the font if there's one, null otherwise</returns>
 		public string LoadTTFontFromFile(string file_name, bool embedding)
 		{
-			IntPtr s = HPDF_LoadTTFontFromFile(hpdf, HPDFTools.StringBuilder(file_name), (embedding ? HPDF_TRUE : HPDF_FALSE));
+			IntPtr s = HPDF_LoadTTFontFromFile(handle, HPDFTools.StringBuilder(file_name), (embedding ? HPDF_TRUE : HPDF_FALSE));
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -576,7 +579,7 @@ namespace HPDF
 		/// <returns>The name of the font if there's one, null otherwise</returns>
 		public string LoadTTFontFromFile(string file_name, bool embedding, uint index = 0)
 		{
-			IntPtr s = HPDF_LoadTTFontFromFile2(hpdf, HPDFTools.StringBuilder(file_name), index, (embedding ? HPDF_TRUE : HPDF_FALSE));
+			IntPtr s = HPDF_LoadTTFontFromFile2(handle, HPDFTools.StringBuilder(file_name), index, (embedding ? HPDF_TRUE : HPDF_FALSE));
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -589,7 +592,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool AddPageLabel(uint page_num, HPDFPageNumberingStyles style, uint first_page = 1, string prefix = null)
 		{
-			LastError = HPDF_AddPageLabel(hpdf, page_num, style, first_page, HPDFTools.StringBuilder(prefix));
+			LastError = HPDF_AddPageLabel(handle, page_num, style, first_page, HPDFTools.StringBuilder(prefix));
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -615,7 +618,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseJPFonts()
 		{
-			LastError = HPDF_UseJPFonts(hpdf);
+			LastError = HPDF_UseJPFonts(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -640,7 +643,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseKRFonts()
 		{
-			LastError = HPDF_UseKRFonts(hpdf);
+			LastError = HPDF_UseKRFonts(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -658,7 +661,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseCNSFonts()
 		{
-			LastError = HPDF_UseCNSFonts(hpdf);
+			LastError = HPDF_UseCNSFonts(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -673,7 +676,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseCNTFonts()
 		{
-			LastError = HPDF_UseCNTFonts(hpdf);
+			LastError = HPDF_UseCNTFonts(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -685,7 +688,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFOutline"/> object or null if an error has occurred</returns>
 		public HPDFOutline CreateOutline(HPDFOutline parent, string title, HPDFEncoder encoder = null)
 		{
-			IntPtr houtline = HPDF_CreateOutline(hpdf, (parent == null ? IntPtr.Zero : parent.GetHandle()), HPDFTools.StringBuilder(title), (encoder == null ? IntPtr.Zero : encoder.GetHandle()));
+			IntPtr houtline = HPDF_CreateOutline(handle, (parent == null ? IntPtr.Zero : parent.GetHandle()), HPDFTools.StringBuilder(title), (encoder == null ? IntPtr.Zero : encoder.GetHandle()));
 			return (houtline == IntPtr.Zero ? null : new HPDFOutline(houtline));
 		}
 		/// <summary>
@@ -695,7 +698,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFEncoder"/> object or null if an error has occurred</returns>
 		public HPDFEncoder GetEncoder(string encoder_name)
 		{
-			IntPtr hencoder = HPDF_GetEncoder(hpdf, HPDFTools.StringBuilder(encoder_name));
+			IntPtr hencoder = HPDF_GetEncoder(handle, HPDFTools.StringBuilder(encoder_name));
 			return (hencoder == IntPtr.Zero ? null : new HPDFEncoder(hencoder));
 		}
 		/// <summary>
@@ -705,7 +708,7 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFEncoder"/> object if a default encoder exists, or null if no default encoder or an error has occurred</returns>
 		public HPDFEncoder GetCurrentEncoder()
 		{
-			IntPtr hencoder = HPDF_GetCurrentEncoder(hpdf);
+			IntPtr hencoder = HPDF_GetCurrentEncoder(handle);
 			return (hencoder == IntPtr.Zero ? null : new HPDFEncoder(hencoder));
 		}
 		/// <summary>
@@ -715,7 +718,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetCurrentEncoder(string encoder_name)
 		{
-			LastError = HPDF_SetCurrentEncoder(hpdf, HPDFTools.StringBuilder(encoder_name));
+			LastError = HPDF_SetCurrentEncoder(handle, HPDFTools.StringBuilder(encoder_name));
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -730,7 +733,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseJPEncodings()
 		{
-			LastError = HPDF_UseJPEncodings(hpdf);
+			LastError = HPDF_UseJPEncodings(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -745,7 +748,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseKREncodings()
 		{
-			LastError = HPDF_UseKREncodings(hpdf);
+			LastError = HPDF_UseKREncodings(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -759,7 +762,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseCNSEncodings()
 		{
-			LastError = HPDF_UseCNSEncodings(hpdf);
+			LastError = HPDF_UseCNSEncodings(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -773,7 +776,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseCNTEncodings()
 		{
-			LastError = HPDF_UseCNTEncodings(hpdf);
+			LastError = HPDF_UseCNTEncodings(handle);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -783,8 +786,8 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFImage"/> object or null if an error has occurred </returns>
 		public HPDFImage LoadPNGImageFromFile(string filename)
 		{
-			IntPtr hobj = HPDF_LoadPngImageFromFile(hpdf, HPDFTools.StringBuilder(filename));
-			return (hobj == IntPtr.Zero ? null : new HPDFImage(hobj));
+			IntPtr h = HPDF_LoadPngImageFromFile(handle, HPDFTools.StringBuilder(filename));
+			return (h == IntPtr.Zero ? null : new HPDFImage(h));
 		}
 		/// <summary>
 		/// Load an external png image file.
@@ -795,8 +798,8 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFImage"/> object or null if an error has occurred </returns>
 		public HPDFImage LoadPNGImageFromFileDelayed(string filename)
 		{
-			IntPtr hobj = HPDF_LoadPngImageFromFile2(hpdf, HPDFTools.StringBuilder(filename));
-			return (hobj == IntPtr.Zero ? null : new HPDFImage(hobj));
+			IntPtr h = HPDF_LoadPngImageFromFile2(handle, HPDFTools.StringBuilder(filename));
+			return (h == IntPtr.Zero ? null : new HPDFImage(h));
 		}
 		/// <summary>
 		/// Load an external JPEG image file
@@ -805,8 +808,8 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFImage"/> object or null if an error has occurred </returns>
 		public HPDFImage LoadJpegImageFromFile(string filename)
 		{
-			IntPtr hobj = HPDF_LoadJpegImageFromFile(hpdf, HPDFTools.StringBuilder(filename));
-			return (hobj == IntPtr.Zero ? null : new HPDFImage(hobj));
+			IntPtr h = HPDF_LoadJpegImageFromFile(handle, HPDFTools.StringBuilder(filename));
+			return (h == IntPtr.Zero ? null : new HPDFImage(h));
 		}
 		/// <summary>
 		/// Loads a "raw" image from file.
@@ -841,8 +844,8 @@ namespace HPDF
 		/// <returns>A <see cref="HPDFImage"/> object or null if an error has occurred </returns>
 		public HPDFImage LoadRawImageFromFile(string filename, uint width, uint height, HPDFColorSpaces color_space)
 		{
-			IntPtr hobj = HPDF_LoadRawImageFromFile(hpdf, HPDFTools.StringBuilder(filename), width, height, color_space);
-			return (hobj == IntPtr.Zero ? null : new HPDFImage(hobj));
+			IntPtr h = HPDF_LoadRawImageFromFile(handle, HPDFTools.StringBuilder(filename), width, height, color_space);
+			return (h == IntPtr.Zero ? null : new HPDFImage(h));
 		}
 		/// <summary>
 		/// Load an image which has "raw" image format from buffer.
@@ -859,8 +862,8 @@ namespace HPDF
 		{
 			if (width * height < data.Length)
 				return null;
-			IntPtr hobj = HPDF_LoadRawImageFromMem(hpdf, data, width, height, color_space, bits_per_component);
-			return (hobj == IntPtr.Zero ? null : new HPDFImage(hobj));
+			IntPtr h = HPDF_LoadRawImageFromMem(handle, data, width, height, color_space, bits_per_component);
+			return (h == IntPtr.Zero ? null : new HPDFImage(h));
 		}
 		/// <summary>
 		/// Set a text into the information dictionary
@@ -876,7 +879,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_INVALID_PARAMETER;
 				return false;
 			}
-			LastError = HPDF_SetInfoAttr(hpdf, type, HPDFTools.StringBuilder(value));
+			LastError = HPDF_SetInfoAttr(handle, type, HPDFTools.StringBuilder(value));
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -897,7 +900,7 @@ namespace HPDF
 				dt.Hour = value.Hour;
 				dt.Minutes = value.Minute;
 				dt.Seconds = value.Second;
-				LastError = HPDF_SetInfoDateAttr(hpdf, type, dt);
+				LastError = HPDF_SetInfoDateAttr(handle, type, dt);
 				return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 			}
 			LastError = (uint)HPDFErrors.HPDF_INVALID_PARAMETER;
@@ -911,7 +914,7 @@ namespace HPDF
 		/// <returns>The information value if set, null otherwise</returns>
 		public string GetInformationAttribute(HPDFInformationTypes type)
 		{
-			IntPtr s = HPDF_GetInfoAttr(hpdf, type);
+			IntPtr s = HPDF_GetInfoAttr(handle, type);
 			return Marshal.PtrToStringAnsi(s);
 		}
 		/// <summary>
@@ -930,7 +933,7 @@ namespace HPDF
 				LastError = (uint)HPDFErrors.HPDF_ENCRYPT_INVALID_PASSWORD;
 				return false;
 			}
-			LastError = HPDF_SetPassword(hpdf, HPDFTools.StringBuilder(owner_passwd), HPDFTools.StringBuilder(user_passwd));
+			LastError = HPDF_SetPassword(handle, HPDFTools.StringBuilder(owner_passwd), HPDFTools.StringBuilder(user_passwd));
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -940,7 +943,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetPermission(HPDFPermissions permission)
 		{
-			LastError = HPDF_SetPermission(hpdf, (uint)permission);
+			LastError = HPDF_SetPermission(handle, (uint)permission);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -952,7 +955,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetEncryptionMode(HPDFEncryptModes mode, uint key_len)
 		{
-			LastError = HPDF_SetEncryptionMode(hpdf, mode, key_len);
+			LastError = HPDF_SetEncryptionMode(handle, mode, key_len);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -962,7 +965,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool SetCompressionMode(HPDFCompressionModes mode)
 		{
-			LastError = HPDF_SetCompressionMode(hpdf, (uint)mode);
+			LastError = HPDF_SetCompressionMode(handle, (uint)mode);
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;
 		}
 		/// <summary>
@@ -972,7 +975,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public HPDFExtGState CreateExtGraphicState()
 		{
-			IntPtr hgstate = HPDF_CreateExtGState(hpdf);
+			IntPtr hgstate = HPDF_CreateExtGState(handle);
 			return IntPtr.Zero == hgstate ? null : new HPDFExtGState(hgstate);
 		}
 		/// <summary>
@@ -981,7 +984,7 @@ namespace HPDF
 		/// <returns>True if NO ERROR, false otherwise</returns>
 		public bool UseUTF8Encoding()
 		{
-			LastError = HPDF_UseUTFEncodings(hpdf);
+			LastError = HPDF_UseUTFEncodings(handle);
 			if ((uint)HPDFErrors.HPDF_NO_ERROR == LastError)
 				return SetCurrentEncoder("UTF-8");
 			return (uint)HPDFErrors.HPDF_NO_ERROR == LastError;

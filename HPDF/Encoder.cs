@@ -31,34 +31,34 @@ namespace HPDF
 	{
 		#region imports
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern HPDFEncoderTypes HPDF_Encoder_GetType(IntPtr hencoder);
+		private static extern HPDFEncoderTypes HPDF_Encoder_GetType(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern HPDFByteTypes HPDF_Encoder_GetByteType(IntPtr hencoder, string text, uint index);
+		private static extern HPDFByteTypes HPDF_Encoder_GetByteType(IntPtr handle, string text, uint index);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern ushort HPDF_Encoder_GetUnicode(IntPtr hencoder, ushort code);
+		private static extern ushort HPDF_Encoder_GetUnicode(IntPtr handle, ushort code);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern HPDFWritingModes HPDF_Encoder_GetWritingMode(IntPtr hencoder);
+		private static extern HPDFWritingModes HPDF_Encoder_GetWritingMode(IntPtr handle);
 
 		[DllImport(DLL_NAME, SetLastError = true)] //, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-		private static extern IntPtr HPDF_Encoder_GetName(IntPtr hencoder);
+		private static extern IntPtr HPDF_Encoder_GetName(IntPtr handle);
 		#endregion
 
 		#region properties
-		IntPtr hencoder;
+		IntPtr handle;
 		public string Name { get => GetName(); }
 		#endregion
 
 		#region constructor
-		public HPDFEncoder(IntPtr hencoder)
+		public HPDFEncoder(IntPtr h)
 		{
-			if (hencoder == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingEncoder);
 			}
-			this.hencoder = hencoder;
+			this.handle = h;
 		}
 		#endregion
 
@@ -69,7 +69,7 @@ namespace HPDF
 		/// <returns>Handle of the underlying object</returns>
 		public IntPtr GetHandle()
 		{
-			return hencoder;
+			return handle;
 		}
 		/// <summary>
 		/// Get Encoder type <see cref="HPDFEncoderTypes"/>
@@ -77,7 +77,7 @@ namespace HPDF
 		/// <returns>The encoder type or <see cref="HPDFEncoderTypes.Unknown"/></returns>
 		public HPDFEncoderTypes GetEncoderType()
 		{
-			return HPDF_Encoder_GetType(hencoder);
+			return HPDF_Encoder_GetType(handle);
 		}
 		/// <summary>
 		/// Get byte type <see cref="HPDFByteTypes"/>
@@ -85,7 +85,7 @@ namespace HPDF
 		/// <returns>The byte type or <see cref="HPDFByteTypes.Unknown"/></returns>
 		public HPDFByteTypes GetByteType(string text, uint index)
 		{
-			return HPDF_Encoder_GetByteType(hencoder, text, index);
+			return HPDF_Encoder_GetByteType(handle, text, index);
 		}
 		/// <summary>
 		/// Get encoded value of a unicode character
@@ -94,7 +94,7 @@ namespace HPDF
 		/// <returns>Encoded value of the unicode character or 0</returns>
 		public ushort GetUnicode(ushort code)
 		{
-			return HPDF_Encoder_GetUnicode(hencoder, code);
+			return HPDF_Encoder_GetUnicode(handle, code);
 		}
 		/// <summary>
 		/// Get writing mode <see cref="HPDFWritingModes"/>
@@ -102,7 +102,7 @@ namespace HPDF
 		/// <returns>The writing mode or <see cref="HPDFWritingModes._eof"/></returns>
 		public HPDFWritingModes GetWritingMode()
 		{
-			return HPDF_Encoder_GetWritingMode(hencoder);
+			return HPDF_Encoder_GetWritingMode(handle);
 		}
 		/// <summary>
 		/// Get encoder name
@@ -110,7 +110,7 @@ namespace HPDF
 		/// <returns>Name of the encoder or null</returns>
 		public string GetName()
 		{
-			IntPtr s = HPDF_Encoder_GetName(hencoder);
+			IntPtr s = HPDF_Encoder_GetName(handle);
 			return Marshal.PtrToStringAnsi(s);
 		}
 		#endregion

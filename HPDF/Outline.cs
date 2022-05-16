@@ -42,13 +42,13 @@ namespace HPDF
 		#endregion
 
 		#region constructor
-		public HPDFOutline(IntPtr houtline)
+		public HPDFOutline(IntPtr h)
 		{
-			if (houtline == IntPtr.Zero)
+			if (h == IntPtr.Zero)
 			{
 				throw new Exception(Resources.FailedCreatingOutline);
 			}
-			this.houtline = houtline;
+			this.houtline = h;
 		}
 		#endregion
 
